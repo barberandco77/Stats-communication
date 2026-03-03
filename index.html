@@ -301,6 +301,9 @@
     }
   }
 
+  fetchTikTok();
+fetchInstagram();
+
   function toggleEdit() {
     const p = document.getElementById('editPanel');
     p.classList.toggle('open');
@@ -342,6 +345,23 @@
     } catch(e) { console.log('vlog fetch error', e); }
   }
 
+async function fetchTikTok(){
+  try{
+    const d=await(await fetch('https://www.tiktok.com/oembed?url=https://www.tiktok.com/@barberandco77')).json();
+    console.log('TikTok:',JSON.stringify(d));
+    const s=d.follower_count??d.followers??null;
+    if(s!=null) document.getElementById('tt-subs').textContent=formatNum(s);
+  }catch(e){console.log('TikTok bloque:',e.message)}
+}
+async function fetchInstagram(){
+  try{
+    const d=await(await fetch('https://www.instagram.com/api/v1/users/web_profile_info/?username=barberandco77',{headers:{'x-ig-app-id':'936619743392459'}})).json();
+    console.log('Instagram:',JSON.stringify(d).substring(0,500));
+    const f=d?.data?.user?.edge_followed_by?.count??null;
+    if(f!=null) document.getElementById('ig-followers').textContent=formatNum(f);
+  }catch(e){console.log('Instagram bloque:',e.message)}
+}
+  
   function formatNum(n) {
     if(n>=1000000) return (n/1000000).toFixed(1).replace('.',',')+' M';
     if(n>=1000) return n.toLocaleString('fr-FR');
