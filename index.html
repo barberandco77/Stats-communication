@@ -28,7 +28,7 @@
       repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px);
   }
   header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 44px; border-bottom: 1px solid rgba(139,37,37,0.4); padding-bottom: 24px; flex-wrap: wrap; gap: 16px; }
-  .logo-wrap img { height: 80px; filter: drop-shadow(0 0 18px rgba(139,37,37,0.5)); }
+  .logo-wrap img { height: 140px; filter: drop-shadow(0 0 22px rgba(139,37,37,0.6)); }
   .logo-fallback { font-family: 'Bebas Neue', sans-serif; font-size: 52px; letter-spacing: 3px; color: var(--text); line-height: 1; display: none; }
   .logo-fallback span { color: var(--red); }
   .header-right { text-align: right; }
@@ -88,11 +88,18 @@
   .btn.secondary { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--muted); font-size: 13px; }
   .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 3px; margin-bottom: 16px; color: var(--muted); }
   .section-title span { color: var(--text); }
-  .vlog-banner { background: var(--mid); border: 1px solid rgba(139,37,37,0.3); border-left: 4px solid var(--red); padding: 22px 26px; display: flex; align-items: center; gap: 20px; margin-bottom: 40px; flex-wrap: wrap; }
-  .vlog-icon { font-size: 34px; flex-shrink: 0; }
-  .vlog-text h3 { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--cream); margin-bottom: 5px; }
-  .vlog-text p { font-size: 12px; color: var(--muted); line-height: 1.65; max-width: 520px; }
-  .vlog-tag { margin-left: auto; font-size: 9px; color: var(--red); border: 1px solid var(--red); padding: 6px 14px; text-transform: uppercase; letter-spacing: 1.5px; white-space: nowrap; }
+  .vlog-banner { background: var(--mid); border: 1px solid rgba(139,37,37,0.3); border-left: 4px solid var(--red); padding: 22px 26px; display: flex; align-items: center; gap: 24px; margin-bottom: 40px; flex-wrap: wrap; }
+  .vlog-thumb { flex-shrink: 0; position: relative; width: 200px; border-radius: 4px; overflow: hidden; cursor: pointer; }
+  .vlog-thumb img { width: 100%; display: block; border-radius: 4px; transition: transform 0.3s; }
+  .vlog-thumb:hover img { transform: scale(1.03); }
+  .vlog-thumb .play-btn { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.35); opacity: 0; transition: opacity 0.2s; }
+  .vlog-thumb:hover .play-btn { opacity: 1; }
+  .vlog-thumb .play-btn span { font-size: 36px; }
+  .vlog-text h3 { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--cream); margin-bottom: 8px; }
+  .vlog-text p { font-size: 12px; color: var(--muted); line-height: 1.65; max-width: 420px; margin-bottom: 12px; }
+  .vlog-views { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--cream); letter-spacing: 1px; }
+  .vlog-views-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px; }
+  .vlog-tag { margin-left: auto; font-size: 9px; color: var(--red); border: 1px solid var(--red); padding: 6px 14px; text-transform: uppercase; letter-spacing: 1.5px; white-space: nowrap; align-self: flex-start; }
   .videos-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 40px; }
   .videos-table thead tr { background: rgba(139,37,37,0.1); border-bottom: 1px solid rgba(139,37,37,0.4); }
   .videos-table th { padding: 11px 16px; text-align: left; font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--cream); font-weight: 500; }
@@ -198,10 +205,15 @@
 
 <p class="section-title"><span>Format Long</span> — Première</p>
 <div class="vlog-banner">
-  <div class="vlog-icon">🎬</div>
+  <a class="vlog-thumb" href="https://www.youtube.com/watch?v=bgY3kdm6Jhg" target="_blank">
+    <img src="https://img.youtube.com/vi/bgY3kdm6Jhg/mqdefault.jpg" alt="Vlog YayaClub x Barber&Co">
+    <div class="play-btn"><span>▶</span></div>
+  </a>
   <div class="vlog-text">
     <h3>Vlog YayaClub x Barber&Co</h3>
     <p>Premier format long publié sur la chaîne YouTube depuis sa création. Une nouvelle direction de contenu qui ouvre la voie aux collaborations et aux formats immersifs pour la marque.</p>
+    <div class="vlog-views" id="vlog-views">—</div>
+    <div class="vlog-views-label">vues en direct</div>
   </div>
   <div class="vlog-tag">1er Vlog</div>
 </div>
@@ -264,6 +276,8 @@
       document.getElementById('totalSubs').textContent = '+'+formatNum(subs+ttS+igN);
       document.getElementById('updateTime').textContent = new Date().toLocaleString('fr-FR');
       document.getElementById('lastUpdate').style.display = 'block';
+      // Fetch vlog views
+      fetchVlogViews();
       setStatus('ok','✓ YouTube connecté');
     } catch(e) {
       setStatus('err','✗ Erreur réseau');
@@ -288,6 +302,17 @@
     const iL=parseN(document.getElementById('ig-likes').textContent), tL=parseN(document.getElementById('tt-likes').textContent), yL=parseN(document.getElementById('yt-likes').textContent);
     document.getElementById('totalLikes').textContent = formatNum(iL+tL+yL);
     document.getElementById('editPanel').classList.remove('open');
+  }
+
+  async function fetchVlogViews() {
+    try {
+      const res  = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics&id=bgY3kdm6Jhg&key=${YT_API_KEY}`);
+      const data = await res.json();
+      if (data.items?.length) {
+        const v = parseInt(data.items[0].statistics.viewCount || 0);
+        document.getElementById('vlog-views').textContent = formatNum(v);
+      }
+    } catch(e) { console.log('vlog fetch error', e); }
   }
 
   function formatNum(n) {
