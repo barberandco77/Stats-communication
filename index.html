@@ -219,6 +219,20 @@
   <div class="vlog-tag">1er Vlog</div>
 </div>
 
+<div class="vlog-banner">
+  <a class="vlog-thumb" href="https://www.youtube.com/watch?v=PtIZC9YCT_M" target="_blank">
+    <img src="https://img.youtube.com/vi/PtIZC9YCT_M/mqdefault.jpg" alt="T'es de quelle année ?">
+    <div class="play-btn"><span>▶</span></div>
+  </a>
+  <div class="vlog-text">
+    <h3>T'es de quelle année ?</h3>
+    <p>Meilleure performance multi-plateforme du compte — 200K vues sur YouTube, 50K sur TikTok, 41K sur Instagram.</p>
+    <div class="vlog-views" id="vid2-views">—</div>
+    <div class="vlog-views-label">vues en direct</div>
+  </div>
+  <div class="vlog-tag">Top Vidéo</div>
+</div>
+
 <p class="section-title"><span>Top Vidéos</span> — Performances</p>
 <table class="videos-table">
   <thead><tr><th>Vidéo</th><th>Plateforme</th><th>Vues</th><th>J'aime</th></tr></thead>
@@ -279,6 +293,7 @@
       document.getElementById('lastUpdate').style.display = 'block';
       // Fetch vlog views
       fetchVlogViews();
+      fetchVid2Views();
       setStatus('ok','✓ YouTube connecté');
     } catch(e) {
       setStatus('err','✗ Erreur réseau');
@@ -303,6 +318,17 @@
     const iL=parseN(document.getElementById('ig-likes').textContent), tL=parseN(document.getElementById('tt-likes').textContent), yL=parseN(document.getElementById('yt-likes').textContent);
     document.getElementById('totalLikes').textContent = formatNum(iL+tL+yL);
     document.getElementById('editPanel').classList.remove('open');
+  }
+
+  async function fetchVid2Views() {
+    try {
+      const res  = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics&id=PtIZC9YCT_M&key=${YT_API_KEY}`);
+      const data = await res.json();
+      if (data.items?.length) {
+        const v = parseInt(data.items[0].statistics.viewCount || 0);
+        document.getElementById('vid2-views').textContent = formatNum(v);
+      }
+    } catch(e) {}
   }
 
   async function fetchVlogViews() {
