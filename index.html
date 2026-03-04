@@ -165,7 +165,7 @@
     <div class="logo-fallback" id="lf">Barber<span>&</span>Co</div>
   </div>
   <div class="header-right">
-    <div class="period">2 Décembre 2024 — aujourd'hui</div>
+    <div class="period">2 Décembre 2025 — <span id="lastManualDate" style="color:var(--muted);font-size:13px">mise à jour : —</span></div>
     <div class="sub">Rapport Social Media · Live</div>
   </div>
 </header>
@@ -359,6 +359,8 @@
     });
     updateGoalBar();
     fetchYouTube();
+    const savedDate = load('lastManualDate');
+    if (savedDate) document.getElementById('lastManualDate').textContent = 'mise à jour : ' + savedDate;
   });
 
   function updateGoalBar() {
@@ -442,6 +444,9 @@
     const iL=parseN(document.getElementById('ig-likes').textContent), tL=parseN(document.getElementById('tt-likes').textContent), yL=parseN(document.getElementById('yt-likes').textContent);
     document.getElementById('totalLikes').textContent = formatNum(iL+tL+yL);
     document.getElementById('editPanel').classList.remove('open');
+    const now = new Date().toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
+    document.getElementById('lastManualDate').textContent = 'mise à jour : ' + now;
+    save('lastManualDate', now);
     updateGoalBar();
   }
 
