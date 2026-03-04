@@ -211,8 +211,8 @@
     <div class="play-btn"><span>▶</span></div>
   </a>
   <div class="vlog-text">
-    <h3>Vlog YayaClub x Barber&Co</h3>
-    <p>Premier format long publié sur la chaîne YouTube depuis sa création. Une nouvelle direction de contenu qui ouvre la voie aux collaborations et aux formats immersifs pour la marque.</p>
+    <h3 id="vlog1-title">Yaya Club x Barber&Co</h3>
+    <p>Filmé dans notre salon à Coulommiers.</p>
     <div class="vlog-views" id="vlog-views">—</div>
     <div class="vlog-views-label">vues en direct</div>
   </div>
@@ -225,7 +225,7 @@
     <div class="play-btn"><span>▶</span></div>
   </a>
   <div class="vlog-text">
-    <h3>T'es de quelle année ?</h3>
+    <h3 id="vlog2-title">YAYA CLUB EP.19 — DJ AYANE</h3>
     <p>Meilleure vidéo YouTube de la période.</p>
     <div class="vlog-views" id="vid2-views">—</div>
     <div class="vlog-views-label">vues en direct</div>
@@ -249,6 +249,8 @@
 <script>
   const YT_API_KEY    = 'AIzaSyDzshRMMZaEH4UW-FnRSRXYUGg9ZIY00TI';
   const YT_CHANNEL_ID = 'UC9bQQo2m3hBg0Yr3D_jqbpA';
+  const VLOG1_ID      = 'bgY3kdm6Jhg';
+  const VLOG2_ID      = 'PtIZC9YCT_M';
 
   function save(k,v){try{localStorage.setItem(k,v)}catch(e){}}
   function load(k){try{return localStorage.getItem(k)}catch(e){return null}}
@@ -291,14 +293,28 @@
       document.getElementById('totalSubs').textContent = '+'+formatNum(subs+ttS+igN);
       document.getElementById('updateTime').textContent = new Date().toLocaleString('fr-FR');
       document.getElementById('lastUpdate').style.display = 'block';
-      // Fetch vlog views
-      fetchVlogViews();
-      fetchVid2Views();
+      // Récupère titres RÉELS + vues depuis l'API YouTube
+      fetchVideo(VLOG1_ID, 'vlog1-title', 'vlog-views');
+      fetchVideo(VLOG2_ID, 'vlog2-title', 'vid2-views');
       setStatus('ok','✓ YouTube connecté');
     } catch(e) {
       setStatus('err','✗ Erreur réseau');
       document.getElementById('ytBadge').textContent = '✗ Hors ligne';
     }
+  }
+
+  async function fetchVideo(id, titleId, viewsId) {
+    try {
+      const res  = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${id}&key=${YT_API_KEY}`);
+      const data = await res.json();
+      if (!data.items?.length) return;
+      const item = data.items[0];
+      // Titre exact depuis YouTube
+      document.getElementById(titleId).textContent = item.snippet.title;
+      // Vues en direct
+      const v = parseInt(item.statistics.viewCount || 0);
+      document.getElementById(viewsId).textContent = formatNum(v);
+    } catch(e) { console.log('fetchVideo error', id, e); }
   }
 
   function toggleEdit() {
@@ -318,28 +334,6 @@
     const iL=parseN(document.getElementById('ig-likes').textContent), tL=parseN(document.getElementById('tt-likes').textContent), yL=parseN(document.getElementById('yt-likes').textContent);
     document.getElementById('totalLikes').textContent = formatNum(iL+tL+yL);
     document.getElementById('editPanel').classList.remove('open');
-  }
-
-  async function fetchVid2Views() {
-    try {
-      const res  = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics&id=PtIZC9YCT_M&key=${YT_API_KEY}`);
-      const data = await res.json();
-      if (data.items?.length) {
-        const v = parseInt(data.items[0].statistics.viewCount || 0);
-        document.getElementById('vid2-views').textContent = formatNum(v);
-      }
-    } catch(e) {}
-  }
-
-  async function fetchVlogViews() {
-    try {
-      const res  = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics&id=bgY3kdm6Jhg&key=${YT_API_KEY}`);
-      const data = await res.json();
-      if (data.items?.length) {
-        const v = parseInt(data.items[0].statistics.viewCount || 0);
-        document.getElementById('vlog-views').textContent = formatNum(v);
-      }
-    } catch(e) { console.log('vlog fetch error', e); }
   }
 
   function formatNum(n) {
